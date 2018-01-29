@@ -48,5 +48,5 @@ mqttClient.on('error', console.error);
 const port = config.get('http.port');
 
 const app = express()
-.get('/metrics', (req, res) => res.send(client.metrics()))
+.get('/metrics', (req, res) => res.send(client.register.metrics()))
 .listen(port);
