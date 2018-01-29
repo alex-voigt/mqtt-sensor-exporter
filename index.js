@@ -1,5 +1,5 @@
 const mqtt = require('mqtt');
-const config = require('@loke/config');
+const config = require('@loke/config').create('mqtt-sensor-exporter');
 const client = require('prom-client');
 
 const gauge = new client.Gauge({
@@ -7,9 +7,6 @@ const gauge = new client.Gauge({
   help: 'Sensor data',
   labelNames: ['sensorType', 'sensorValue', 'sensorId']
 });
-gauge.set({ sensorType: 'temperature', sensorValue: 100, sensorId: '111' }, 10);
-
-// collectDefaultMetrics({ register });
 
 let mqttClient;
 let mqttConnected = false;
@@ -18,7 +15,7 @@ const mqttUri = 'mqtt://' + config.get('mqtt.host');
 const sensors = config.get('sensors');
 const topics = sensors.map(s => s.topic);
 const sensorMap = sensors.reduce((o, sensor) => {
-  o[topic] = sensor;
+  o[sensor.topic] = sensor;
   return o;
 }, {});
 
@@ -29,12 +26,13 @@ mqttClient.on('message', (topic, message) => {
   const data = strMsg ? JSON.parse(strMsg) : undefined;
 
   const sensor = sensorMap[topic];
-  value = data[sensor.field];
+  value = sensor.field && data[sensor.field] || data;
   gauge.set({ sensorType: sensor.type, sensorId: sensor.id }, value);
+  console.log(client.register.metrics());
 });
 
 mqttClient.on('connect', () => {
-  logger.info('MQTT connected');
+  console.info('MQTT connected');
   mqttConnected = true;
 
   topics.forEach(topic => {
