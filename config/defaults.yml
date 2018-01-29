@@ -1,0 +1,7 @@
+mqtt:
+  host: localhost
+sensors:
+  - topic: 'sensor/temp1'
+    field: null
+    id: temp1
+    type: temperature
