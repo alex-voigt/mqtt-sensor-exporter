@@ -1,5 +1,7 @@
 mqtt:
   host: localhost
+http:
+  port: 9131
 sensors:
   - topic: 'sensor/temp1'
     field: null

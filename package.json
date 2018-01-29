@@ -18,6 +18,7 @@
   "homepage": "https://github.com/denwilliams/mqtt-sensor-exporter#readme",
   "dependencies": {
     "@loke/config": "^3.0.0",
+    "express": "^4.16.2",
     "mqtt": "^2.15.1",
     "prom-client": "^10.2.2"
   }
