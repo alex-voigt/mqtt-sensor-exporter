@@ -6,7 +6,7 @@ const express = require('express');
 const gauge = new client.Gauge({
   name: 'sensor',
   help: 'Sensor data',
-  labelNames: ['sensorType', 'sensorValue', 'sensorId']
+  labelNames: ['sensorType', 'sensorId']
 });
 
 let mqttClient;
