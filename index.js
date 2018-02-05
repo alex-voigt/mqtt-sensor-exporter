@@ -3,6 +3,20 @@ const config = require('@loke/config').create('mqtt-sensor-exporter');
 const client = require('prom-client');
 const express = require('express');
 
+var handler = {
+  get: function(target, name) {
+    if (!name in target) {
+      target[name] = new client.Gauge({
+        name: `sensor_${name}`,
+        help: `Sensor data for ${name}`,
+        labelNames: ['sensorId']
+      });
+    }
+    return target[name];
+  }
+};
+const gauges = new Proxy({}, handler);
+
 const gauge = new client.Gauge({
   name: 'sensor',
   help: 'Sensor data',
@@ -29,6 +43,7 @@ mqttClient.on('message', (topic, message) => {
   const sensor = sensorMap[topic];
   value = sensor.field && data[sensor.field] || data;
   gauge.set({ sensorType: sensor.type, sensorId: sensor.id }, value);
+  guages[sensor.type].set({ sensorId: sensor.id }, value);
   // console.log(client.register.metrics());
 });
 
