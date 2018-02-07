@@ -23,7 +23,10 @@ function createCounter(name) {
     help: `Sensor data for ${name}`,
     labelNames: ['sensorId']
   });
-  return (sensorId) => counter.inc({ sensorId });
+  return (sensorId) => {
+    console.log(name, '+1');
+    counter.inc({ sensorId });
+  };
 }
 
 function createGauge(name) {
@@ -32,14 +35,11 @@ function createGauge(name) {
     help: `Sensor data for ${name}`,
     labelNames: ['sensorId']
   });
-  return (sensorId, value) => gauge.set({ sensorId }, value);
+  return (sensorId, value) => {
+    console.log(name, value);
+    gauge.set({ sensorId }, value);
+  }
 }
-
-const gauge = new client.Gauge({
-  name: 'sensor',
-  help: 'Sensor data',
-  labelNames: ['sensorType', 'sensorId']
-});
 
 let mqttClient;
 let mqttConnected = false;
@@ -60,7 +60,6 @@ mqttClient.on('message', (topic, message) => {
 
   const sensor = sensorMap[topic];
   value = sensor.field && data[sensor.field] || data;
-  gauge.set({ sensorType: sensor.type, sensorId: sensor.id }, value);
   gauges[sensor.type](sensor.id, value);
 });
 
