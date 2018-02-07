@@ -43,7 +43,7 @@ mqttClient.on('message', (topic, message) => {
   const sensor = sensorMap[topic];
   value = sensor.field && data[sensor.field] || data;
   gauge.set({ sensorType: sensor.type, sensorId: sensor.id }, value);
-  guages[sensor.type].set({ sensorId: sensor.id }, value);
+  gauges[sensor.type].set({ sensorId: sensor.id }, value);
   // console.log(client.register.metrics());
 });
 
