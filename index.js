@@ -42,7 +42,6 @@ function createGauge(name) {
 }
 
 let mqttClient;
-let mqttConnected = false;
 
 const mqttUri = 'mqtt://' + config.get('mqtt.host');
 const sensors = config.get('sensors');
@@ -57,15 +56,22 @@ mqttClient  = mqtt.connect(mqttUri);
 mqttClient.on('message', (topic, message) => {
   const strMsg = message.toString();
   const data = strMsg ? JSON.parse(strMsg) : undefined;
-
   const sensor = sensorMap[topic];
-  value = sensor.field && data[sensor.field] || data;
-  gauges[sensor.type](sensor.id, value);
+
+  if(Array.isArray(sensor.field)) {
+    sensor.field.forEach(function(fieldName) {
+        value = data[fieldName];
+        gauges[sensor.type+"_"+fieldName](sensor.id, value);
+    })
+  }
+  else {
+    value = sensor.field && data[sensor.field] || data;
+    gauges[sensor.type](sensor.id, value);
+  }
 });
 
 mqttClient.on('connect', () => {
   console.info('MQTT connected');
-  mqttConnected = true;
 
   topics.forEach(topic => {
     mqttClient.subscribe(topic);
