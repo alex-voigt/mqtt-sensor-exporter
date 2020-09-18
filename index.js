@@ -24,7 +24,6 @@ function createCounter(name) {
     labelNames: ['sensorId']
   });
   return (sensorId) => {
-    console.log(name, '+1');
     counter.inc({ sensorId });
   };
 }
@@ -36,7 +35,6 @@ function createGauge(name) {
     labelNames: ['sensorId']
   });
   return (sensorId, value) => {
-    console.log(name, value);
     gauge.set({ sensorId }, value);
   }
 }
@@ -54,14 +52,32 @@ const sensorMap = sensors.reduce((o, sensor) => {
 mqttClient  = mqtt.connect(mqttUri);
 
 mqttClient.on('message', (topic, message) => {
-  const strMsg = message.toString();
-  const data = strMsg ? JSON.parse(strMsg) : undefined;
-  const sensor = sensorMap[topic];
+    const strMsg = message.toString();
+    const data = strMsg ? JSON.parse(strMsg) : undefined;
+    sensor = sensorMap[topic];
 
+    // make topic path a metric (heatpump)
+    if(!sensor && !topic.startsWith("zigbee2mqtt")) {
+        const gaugeName = topic.replace(/\//g, '_').toLowerCase();
+        gauges[gaugeName](gaugeName, data);
+        return;
+    }
+
+    // take last topic part and create metric for it (zigbee2mqtt)
+    if(topic.startsWith("zigbee2mqtt")) {
+        startingSlash = topic.indexOf("/");
+        sensorName = topic.substring(startingSlash+1, topic.length);
+        sensor = sensorMap['zigbee2mqtt/+'];
+        sensor.id = sensorName;
+    }
+
+  // extract fields
   if(Array.isArray(sensor.field)) {
     sensor.field.forEach(function(fieldName) {
-        value = data[fieldName];
-        gauges[sensor.type+"_"+fieldName](sensor.id, value);
+        value = parseFloat(data[fieldName]);
+        if(value !== undefined && !isNaN(value)) {
+            gauges[sensor.type+"_"+fieldName](sensor.id, value);
+        }
     })
   }
   else {
@@ -83,7 +99,6 @@ mqttClient.on('offline', console.log);
 mqttClient.on('error', console.error);
 
 const port = config.get('http.port');
-
 const app = express()
-.get('/metrics', (req, res) => res.send(client.register.metrics()))
-.listen(port);
+  .get('/metrics', (req, res) => res.send(client.register.metrics()))
+  .listen(port);

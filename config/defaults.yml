@@ -3,7 +3,16 @@ mqtt:
 http:
   port: 9131
 sensors:
-  - topic: 'sensor/temp1'
-    field: null
-    id: temp1
-    type: temperature
+- topic: 'power-meter/household/consumption'
+  field: ['current', 'total']
+  id: household
+  type: power
+- topic: 'power-meter/heatpump/consumption'
+  field: ['current', 'total']
+  id: heatpump
+  type: power
+- topic: 'heatpump/#'
+  type: heatpump
+- topic: 'zigbee2mqtt/+'
+  field: [ 'temperature', 'humidity', 'pressure' ]
+  type: aqara
