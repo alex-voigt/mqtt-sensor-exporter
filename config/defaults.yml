@@ -14,5 +14,5 @@ sensors:
 - topic: 'heatpump/#'
   type: heatpump
 - topic: 'zigbee2mqtt/+'
-  field: [ 'temperature', 'humidity', 'pressure' ]
+  field: [ 'temperature', 'humidity', 'pressure', 'battery', 'linkquality' ]
   type: aqara
