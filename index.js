@@ -59,11 +59,15 @@ mqttClient.on('message', (topic, message) => {
     // make topic path a metric (heatpump)
     if(!sensor && !topic.startsWith("zigbee2mqtt")) {
         const gaugeName = topic.replace(/\//g, '_').toLowerCase();
+        if(data === undefined) {
+          console.log(gaugeName, "data for gauge is undefined");
+          return;
+        }
         gauges[gaugeName](gaugeName, data);
         return;
-    }
-
-    // take last topic part and create metric for it (zigbee2mqtt)
+      }
+      
+      // take last topic part and create metric for it (zigbee2mqtt)
     if(topic.startsWith("zigbee2mqtt")) {
         startingSlash = topic.indexOf("/");
         sensorName = topic.substring(startingSlash+1, topic.length);

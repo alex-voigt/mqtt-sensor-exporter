@@ -1,5 +1,5 @@
 mqtt:
-  host: localhost
+  host: docker-pi
 http:
   port: 9131
 sensors:
