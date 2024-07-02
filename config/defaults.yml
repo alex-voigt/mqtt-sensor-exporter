@@ -3,12 +3,12 @@ mqtt:
 http:
   port: 9131
 sensors:
-- topic: 'power-meter/household/consumption'
-  field: ['current', 'total']
+- topic: 'power-meter/household'
+  field: ['currentConsumption', 'totalConsumption', 'totalDelivery']
   id: household
   type: power
-- topic: 'power-meter/heatpump/consumption'
-  field: ['current', 'total']
+- topic: 'power-meter/heatpump'
+  field: ['currentConsumption', 'totalConsumption']
   id: heatpump
   type: power
 - topic: 'heatpump/#'
